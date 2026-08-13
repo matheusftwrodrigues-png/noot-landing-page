@@ -147,7 +147,7 @@ export default function ScrollCompanion() {
   return (
     <div
       ref={rootRef}
-      className="pointer-events-none fixed bottom-6 left-4 z-[45] sm:bottom-8 sm:left-6 md:left-8"
+      className="pointer-events-none fixed right-4 bottom-6 z-[45] sm:right-6 sm:bottom-8 md:right-8"
       style={{ opacity: 0 }}
       aria-hidden
     >

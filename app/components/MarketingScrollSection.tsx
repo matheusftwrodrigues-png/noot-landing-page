@@ -48,28 +48,28 @@ export default function MarketingScrollSection() {
         scrollTrigger: {
           trigger: section,
           start: "top top",
-          // Full horizontal travel + hold so the next section waits
-          end: () => `+=${getScrollDistance() + window.innerHeight * 0.85}`,
+          end: () => `+=${Math.max(getScrollDistance(), 1)}`,
           pin: true,
           pinSpacing: true,
-          scrub: 0.65,
-          anticipatePin: 1,
+          scrub: 0.35,
           invalidateOnRefresh: true,
-          preventOverlaps: true,
         },
       });
     }, section);
 
-    // Recalculate after previous sticky sections settle
-    requestAnimationFrame(() => ScrollTrigger.refresh());
+    const refresh = () => ScrollTrigger.refresh();
+    requestAnimationFrame(refresh);
+    const t1 = window.setTimeout(refresh, 180);
+    const t2 = window.setTimeout(refresh, 700);
 
-    const onResize = () => ScrollTrigger.refresh();
-    window.addEventListener("resize", onResize);
-    window.addEventListener("load", onResize);
+    window.addEventListener("resize", refresh);
+    window.addEventListener("load", refresh);
 
     return () => {
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("load", onResize);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      window.removeEventListener("resize", refresh);
+      window.removeEventListener("load", refresh);
       ctx.revert();
     };
   }, []);

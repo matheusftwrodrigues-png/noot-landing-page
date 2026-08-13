@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 
 const SECTIONS = [
   { id: "inicio", label: "Logo" },
+  { id: "oficio", label: "Ofício" },
   { id: "proposta", label: "Proposta" },
   { id: "empresas", label: "Clientes" },
+  { id: "trabalhos", label: "Galeria" },
   { id: "fala-com-a-gente", label: "Fala" },
 ] as const;
 
@@ -36,8 +38,10 @@ function sectionProgress(el: HTMLElement) {
 function emptyProgress(): ProgressMap {
   return {
     inicio: 0,
+    oficio: 0,
     proposta: 0,
     empresas: 0,
+    trabalhos: 0,
     "fala-com-a-gente": 0,
   };
 }
@@ -124,78 +128,60 @@ export default function SectionProgressNav() {
 
   return (
     <nav
-      className="pointer-events-none fixed top-1/2 right-3 z-50 hidden -translate-y-1/2 sm:right-5 md:block"
+      className="pointer-events-none fixed inset-y-0 left-0 z-50 hidden md:flex"
       aria-label="Progresso das seções"
     >
-      <div className="pointer-events-auto flex flex-col items-end gap-4 rounded-2xl bg-[#171412]/75 px-3 py-4 shadow-[0_12px_40px_rgba(23,20,18,0.25)] ring-1 ring-white/10 backdrop-blur-md">
-        <div className="mb-1 flex w-full flex-col items-end gap-1">
-          <span className="font-[family-name:var(--font-geist-mono)] text-[0.6rem] tracking-[0.2em] text-white/50 uppercase">
-            Jornada
-          </span>
-          <div className="h-1 w-16 overflow-hidden rounded-full bg-white/15">
-            <div
-              className="h-full rounded-full bg-[#ED1A41] transition-[width] duration-150"
-              style={{ width: `${Math.round(overall * 100)}%` }}
-            />
-          </div>
-          <span className="font-[family-name:var(--font-geist-mono)] text-[0.65rem] text-white/70">
-            {Math.round(overall * 100)}%
-          </span>
-        </div>
+      <div className="group/nav pointer-events-auto flex h-full w-12 flex-col items-center py-[9vh] opacity-100 transition-opacity duration-300 hover:opacity-100">
+        <div className="relative flex h-full w-full flex-col items-center">
+          <div
+            className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-white mix-blend-difference"
+            aria-hidden
+          />
+          <div
+            className="absolute top-0 left-1/2 w-px -translate-x-1/2 bg-[#ED1A41] transition-[height] duration-150"
+            style={{ height: `${Math.round(overall * 100)}%` }}
+            aria-hidden
+          />
 
-        <ul className="flex flex-col gap-3">
-          {SECTIONS.map((section, index) => {
-            const p = progress[section.id] ?? 0;
-            const isActive = active === section.id;
-            const remaining = Math.max(0, 100 - Math.round(p * 100));
+          <ul className="relative z-10 flex h-full flex-col items-center justify-between">
+            {SECTIONS.map((section) => {
+              const p = progress[section.id] ?? 0;
+              const isActive = active === section.id;
 
-            return (
-              <li key={section.id}>
-                <button
-                  type="button"
-                  onClick={() => jumpTo(section.id)}
-                  className="group flex w-full items-center justify-end gap-3 text-right"
-                >
-                  <span className="flex min-w-[5.5rem] flex-col items-end gap-0.5">
+              return (
+                <li key={section.id} className="relative flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => jumpTo(section.id)}
+                    className="group flex h-6 w-6 items-center justify-center"
+                    aria-current={isActive ? "true" : undefined}
+                    aria-label={section.label}
+                  >
                     <span
-                      className={`font-[family-name:var(--font-geist-mono)] text-[0.65rem] tracking-wide transition-colors ${
+                      className={`rounded-full transition-all duration-200 ${
                         isActive
-                          ? "text-white"
-                          : "text-white/45 group-hover:text-white/75"
+                          ? "h-2 w-2 bg-[#ED1A41] shadow-[0_0_0_3px_rgba(237,26,65,0.28)]"
+                          : p > 0.02
+                            ? "h-1.5 w-1.5 bg-white mix-blend-difference"
+                            : "h-1 w-1 bg-white/70 mix-blend-difference"
+                      }`}
+                      aria-hidden
+                    />
+                    <span
+                      className={`pointer-events-none absolute top-1/2 left-7 -translate-y-1/2 font-[family-name:var(--font-geist-mono)] text-[0.6rem] tracking-[0.16em] whitespace-nowrap uppercase mix-blend-difference transition-opacity duration-200 ${
+                        isActive
+                          ? "text-white opacity-70"
+                          : "text-white opacity-0 group-hover/nav:opacity-50"
                       }`}
                     >
-                      {String(index + 1).padStart(2, "0")} {section.label}
+                      {section.label}
                     </span>
-                    <span className="font-[family-name:var(--font-geist-mono)] text-[0.6rem] text-white/35">
-                      {p >= 0.97
-                        ? "chegou"
-                        : p <= 0.02
-                          ? "à frente"
-                          : `${remaining}% falta`}
-                    </span>
-                    <span className="mt-0.5 h-0.5 w-14 overflow-hidden rounded-full bg-white/15">
-                      <span
-                        className="block h-full rounded-full bg-[#ED1A41] transition-[width] duration-150"
-                        style={{ width: `${Math.round(p * 100)}%` }}
-                      />
-                    </span>
-                  </span>
-
-                  <span
-                    className={`relative flex h-2.5 w-2.5 shrink-0 items-center justify-center rounded-full transition-all ${
-                      isActive
-                        ? "bg-[#ED1A41] shadow-[0_0_0_4px_rgba(237,26,65,0.25)]"
-                        : p > 0.02
-                          ? "bg-white/55"
-                          : "bg-white/20"
-                    }`}
-                    aria-hidden
-                  />
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </div>
     </nav>
   );
