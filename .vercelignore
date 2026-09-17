@@ -1,0 +1,24 @@
+# A .vercelignore replaces .gitignore for uploads, so everything the build
+# regenerates has to be listed here too — otherwise the CLI ships node_modules.
+node_modules
+.next
+out
+build
+coverage
+.git
+.vercel
+*.tsbuildinfo
+
+# local-only
+_to_delete
+scripts
+*.log
+.DS_Store
+.env*
+
+# screenshots kept for review, not served by the site
+noot-preview.png
+noot-preview-mobile.png
+noot-footer-preview.png
+noot-footer-mobile-preview.png
+noot-plan-preview.png

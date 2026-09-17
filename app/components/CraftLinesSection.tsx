@@ -86,13 +86,13 @@ export default function CraftLinesSection() {
       className="relative z-[15] min-h-screen w-full"
       aria-label="Dev, Design UI/UX e Tráfego"
     >
-      <div className="relative flex min-h-screen w-full flex-col justify-center overflow-hidden bg-[#14080b]">
+      <div className="relative flex min-h-screen w-full flex-col justify-center overflow-hidden bg-[#081125]">
         <div
           className="pointer-events-none absolute inset-0"
           aria-hidden
           style={{
             background:
-              "radial-gradient(ellipse 90% 70% at 18% 110%, rgba(237, 26, 65, 0.55), transparent 58%), radial-gradient(circle at 88% 8%, rgba(237, 26, 65, 0.22), transparent 42%), linear-gradient(180deg, #1a0b0f 0%, #0c0708 55%, #1c0a10 100%)",
+              "radial-gradient(ellipse 90% 70% at 18% 110%, rgba(237, 26, 65, 0.55), transparent 58%), radial-gradient(circle at 88% 8%, rgba(237, 26, 65, 0.22), transparent 42%), linear-gradient(180deg, #112159 0%, #081125 55%, #0D193F 100%)",
           }}
         />
         <div
@@ -102,7 +102,7 @@ export default function CraftLinesSection() {
             backgroundImage:
               "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(237, 26, 65, 0.35) 3px, rgba(237, 26, 65, 0.35) 4px)",
             maskImage:
-              "linear-gradient(180deg, transparent, black 18%, black 82%, transparent)",
+              "linear-gradient(180deg, transparent, #081125 18%, #081125 82%, transparent)",
           }}
         />
         <p

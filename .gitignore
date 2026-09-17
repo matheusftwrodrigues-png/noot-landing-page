@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
+.env*
+
+# local-only artefacts
+/_to_delete/
+noot-preview*.png
+noot-footer*.png
+noot-plan-preview.png
+*.expired.bak
+.vercel/*.bak

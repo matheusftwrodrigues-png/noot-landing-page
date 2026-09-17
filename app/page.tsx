@@ -1,22 +1,28 @@
-import NootLettersSection from "./components/NootLettersSection";
-import CraftLinesSection from "./components/CraftLinesSection";
+import IntroLoader from "./components/IntroLoader";
+import CustomCursor from "./components/CustomCursor";
+import HeroSection from "./components/HeroSection";
+import CraftSection from "./components/CraftSection";
+import SiteHeader from "./components/SiteHeader";
 import MarketingScrollSection from "./components/MarketingScrollSection";
+import ElasticPlanSection from "./components/ElasticPlanSection";
 import CompaniesSection from "./components/CompaniesSection";
-import WorksGallerySection from "./components/WorksGallerySection";
+import WorksMarqueeSection from "./components/WorksMarqueeSection";
 import TalkToUsSection from "./components/TalkToUsSection";
-import SectionProgressNav from "./components/SectionProgressNav";
 import ScrollCompanion from "./components/ScrollCompanion";
 
 export default function Home() {
   return (
     <main className="flex min-h-full flex-col">
-      <SectionProgressNav />
+      <IntroLoader />
+      <CustomCursor />
+      <SiteHeader />
       <ScrollCompanion />
-      <NootLettersSection />
-      <CraftLinesSection />
+      <HeroSection />
+      <CraftSection />
+      <ElasticPlanSection />
       <MarketingScrollSection />
       <CompaniesSection />
-      <WorksGallerySection />
+      <WorksMarqueeSection />
       <TalkToUsSection />
     </main>
   );

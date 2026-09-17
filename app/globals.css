@@ -2,8 +2,10 @@
 
 :root {
   --background: #f7f4f0;
-  --foreground: #171412;
+  --foreground: #081125;
   --noot-red: #ed1a41;
+  --noot-ink: #081125;
+  --noot-blue: #112159;
 }
 
 @theme inline {
@@ -11,12 +13,35 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-jakarta);
+}
+
+/* Plain #anchor links jump instantly without this — only the header menu was
+   easing, because it calls scrollIntoView itself. */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), sans-serif;
+}
+
+::selection {
+  background: var(--noot-red);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--noot-red);
+  outline-offset: 4px;
 }
 
 @keyframes scroll-wheel {
@@ -52,4 +77,914 @@ body {
 
 .scroll-hint-chevrons {
   animation: scroll-chevron 1.4s ease-in-out infinite;
+}
+
+/* ---------------------------------------------------------------------------
+   Noot wordmark
+   Every glyph is scaled by the same unit (the artwork's own design units), so
+   the wordmark keeps its real proportions instead of being flattened to one
+   uniform letter height.
+--------------------------------------------------------------------------- */
+.noot-wordmark {
+  --noot-unit: calc(clamp(26px, 2.2vw, 32px) / 24);
+  gap: calc(var(--noot-unit) * 1.1);
+}
+
+/* The artwork is fixed at #ED1A41, so grey has to come from a filter. */
+.noot-wordmark--muted img {
+  filter: grayscale(1) saturate(0) brightness(1.65);
+  transition: filter 320ms ease;
+}
+
+.noot-wordmark--muted:hover img {
+  filter: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Intro loader — compact wordmark over a navy-to-pink brand signal.
+--------------------------------------------------------------------------- */
+.noot-intro-mark {
+  --noot-unit: calc(clamp(3.2rem, 6vw, 5rem) / 24);
+  gap: calc(var(--noot-unit) * 1.1);
+}
+
+.noot-intro-letter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.noot-intro-beam {
+  transform-origin: center;
+  will-change: transform;
+}
+
+/* ---------------------------------------------------------------------------
+   Client logo marquee
+--------------------------------------------------------------------------- */
+.logo-marquee {
+  --logo-scale: 0.6;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #081125 14%,
+    #081125 86%,
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #081125 14%,
+    #081125 86%,
+    transparent
+  );
+}
+
+@media (min-width: 640px) {
+  .logo-marquee {
+    --logo-scale: 0.78;
+  }
+}
+
+@media (min-width: 1024px) {
+  .logo-marquee {
+    --logo-scale: 0.85;
+  }
+}
+
+.logo-marquee-track {
+  animation: logo-marquee 34s linear infinite;
+  will-change: transform;
+}
+
+.logo-marquee:hover .logo-marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes logo-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-marquee-track {
+    animation: none;
+  }
+
+  .noot-intro-letter {
+    opacity: 1;
+    transform: none;
+  }
+
+  .scroll-hint-wheel,
+  .scroll-hint-chevrons {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Custom cursor
+   A single dot that trails the pointer. Only on real pointers — coarse
+   pointers keep the native behaviour and never see it.
+--------------------------------------------------------------------------- */
+.noot-cursor {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  /* The native cursor stays visible: this rides alongside it rather than
+     replacing it, so precision never depends on a rAF-smoothed dot. */
+  .noot-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    display: block;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 220ms ease;
+    will-change: transform;
+  }
+
+  /* At rest a small brand dot; over a labelled target it opens into a disc.
+     Sized in pixels rather than scaled, so the label stays crisp. */
+  .noot-cursor-shape {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 9999px;
+    background: var(--noot-red);
+    transform: translate(-50%, -50%);
+    transition:
+      width 250ms cubic-bezier(0, 0.53, 0.84, 0.94),
+      height 250ms cubic-bezier(0, 0.53, 0.84, 0.94),
+      background-color 250ms ease;
+  }
+
+  .noot-cursor[data-state="active"] .noot-cursor-shape {
+    width: 30px;
+    height: 30px;
+    background: rgba(237, 26, 65, 0.5);
+  }
+
+  /* A fixed translucent ink disc, not an inversion: white type on it reads
+     the same over any artwork, which is what the blended version could not
+     guarantee. */
+  .noot-cursor[data-state="label"] .noot-cursor-shape {
+    width: 128px;
+    height: 128px;
+    background: rgba(8, 17, 37, 0.55);
+    /* A hairline so the disc still separates when it lands on a backdrop as
+       dark as itself, rather than dissolving into it. */
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+  }
+
+  .noot-cursor-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    /* An explicit width, not max-width: the containing block is 0x0, so a
+       shrink-to-fit box would wrap after every word. */
+    width: 112px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: 0.01em;
+    text-align: center;
+    color: #fff;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition: opacity 180ms ease;
+  }
+
+  .noot-cursor[data-state="label"] .noot-cursor-text {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .noot-cursor {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Fixed site header
+--------------------------------------------------------------------------- */
+.site-header {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px 16px 0;
+  pointer-events: none;
+}
+
+/* The intro reveal rides on the pill, not the header: any transform or
+   opacity on an ancestor turns that ancestor into the backdrop root and the
+   glass would blur an empty layer instead of the page. */
+.site-nav,
+.site-nav-sheet {
+  opacity: 0;
+  transform: translateY(-14px);
+  transition:
+    opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 340ms ease,
+    border-color 340ms ease,
+    box-shadow 340ms ease;
+}
+
+.site-header-in .site-nav,
+.site-header-in .site-nav-sheet {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* The floating pill. Translucent so the page moves underneath it, with a
+   hairline border and an inner sheen doing the "liquid glass" separation.
+
+   Tone: the glass takes the tone of the section behind it and the TEXT
+   inverts. A dark pill over a flat cream hero just reads as a grey slab —
+   there is no photo under it for the blur to reveal. Separation from the
+   section comes from the border and shadow, contrast from the text. */
+.site-header[data-tone="light"] {
+  --nav-bg: rgba(255, 255, 255, 0.7);
+  --nav-border: rgba(8, 17, 37, 0.14);
+  --nav-sheen: rgba(255, 255, 255, 0.85);
+  --nav-shadow: 0 12px 38px rgba(8, 17, 37, 0.14);
+  --nav-text: rgba(8, 17, 37, 0.68);
+  --nav-text-strong: #081125;
+  --nav-hover-bg: rgba(8, 17, 37, 0.07);
+  --nav-active: #ed1a41;
+  --nav-mark-filter: none;
+}
+
+.site-header[data-tone="dark"] {
+  --nav-bg: rgba(10, 16, 32, 0.52);
+  --nav-border: rgba(255, 255, 255, 0.22);
+  --nav-sheen: rgba(255, 255, 255, 0.26);
+  --nav-shadow: 0 14px 42px rgba(0, 0, 0, 0.34);
+  --nav-text: rgba(255, 255, 255, 0.76);
+  --nav-text-strong: #fff;
+  --nav-hover-bg: rgba(255, 255, 255, 0.12);
+  /* #ED1A41 only reaches 4.3:1 on near-black; this clears 4.5:1. */
+  --nav-active: #ff6b85;
+  --nav-mark-filter: brightness(1.16) saturate(1.05);
+}
+
+.site-nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 1020px;
+  height: 58px;
+  padding: 0 8px 0 24px;
+  border-radius: 9999px;
+  border: 1px solid var(--nav-border);
+  background: var(--nav-bg);
+  backdrop-filter: blur(22px) saturate(180%);
+  box-shadow: var(--nav-shadow);
+}
+
+/* The glass highlight: a soft diagonal wash across the top-left of the pill. */
+.site-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(158deg, var(--nav-sheen) 0%, transparent 46%);
+  opacity: 0.5;
+  pointer-events: none;
+  transition: opacity 340ms ease;
+}
+
+.site-nav > * {
+  position: relative;
+}
+
+/* Smaller than the hero mark — inside a 58px pill it should read as a tag. */
+.site-nav-brand {
+  --noot-unit: calc(clamp(18px, 1.45vw, 22px) / 24);
+  display: flex;
+  align-items: flex-end;
+  flex: 0 0 auto;
+}
+
+.site-nav-brand img {
+  filter: var(--nav-mark-filter);
+  transition: filter 340ms ease;
+}
+
+/* Centred between the mark and the CTA, whatever their widths. */
+.site-nav-links {
+  display: none;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.site-nav-link {
+  padding: 8px 15px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--nav-text);
+  white-space: nowrap;
+  transition:
+    color 240ms ease,
+    background-color 240ms ease;
+}
+
+.site-nav-link:hover {
+  color: var(--nav-text-strong);
+  background: var(--nav-hover-bg);
+}
+
+.site-nav-link[data-active="true"] {
+  color: var(--nav-active);
+}
+
+.site-nav-cta {
+  display: none;
+  flex: 0 0 auto;
+  align-items: center;
+  height: 42px;
+  padding: 0 22px;
+  border-radius: 9999px;
+  background: var(--noot-red);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(237, 26, 65, 0.32);
+  transition:
+    background-color 220ms ease,
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.site-nav-cta:hover {
+  background: #c91536;
+  transform: translateY(-1px);
+}
+
+/* Below the links breakpoint the pill collapses to mark + burger. */
+.site-nav-burger {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: flex-end;
+  height: 40px;
+  padding-right: 12px;
+}
+
+.site-nav-burger-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.site-nav-burger-bars > span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 9999px;
+  background: var(--nav-text-strong);
+  transition:
+    transform 200ms ease,
+    background-color 340ms ease;
+}
+
+.site-nav-burger-bars > span:first-child[data-open="true"] {
+  transform: translateY(3.5px) rotate(45deg);
+}
+
+.site-nav-burger-bars > span:last-child[data-open="true"] {
+  transform: translateY(-3.5px) rotate(-45deg);
+}
+
+.site-nav-sheet {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1020px;
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 24px;
+  border: 1px solid var(--nav-border);
+  background: var(--nav-bg);
+  backdrop-filter: blur(22px) saturate(180%);
+  box-shadow: var(--nav-shadow);
+  pointer-events: auto;
+}
+
+.site-nav-sheet-link {
+  padding: 13px 16px;
+  border-radius: 16px;
+  text-align: left;
+  font-size: 15px;
+  color: var(--nav-text-strong);
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+.site-nav-sheet-link:hover {
+  background: var(--nav-hover-bg);
+  color: var(--nav-active);
+}
+
+.site-nav-sheet-link[data-active="true"] {
+  color: var(--nav-active);
+}
+
+@media (min-width: 860px) {
+  .site-nav-links,
+  .site-nav-cta {
+    display: flex;
+  }
+
+  .site-nav-burger {
+    display: none;
+  }
+}
+
+
+/* ---------------------------------------------------------------------------
+   Craft section — each row is a cube hinged on its bottom edge. The face in
+   view sets the height; the second face waits pre-rotated 90deg about its own
+   top edge, so one rotation swings it into the frame.
+--------------------------------------------------------------------------- */
+.craft-stack {
+  display: grid;
+}
+
+.craft-row {
+  position: relative;
+  z-index: 1;
+  perspective: 1000px;
+}
+
+.craft-row:hover {
+  z-index: 2;
+}
+
+.craft-row-inner {
+  position: relative;
+  display: grid;
+  transform-style: preserve-3d;
+  transform-origin: center bottom;
+  transform: rotateX(0.01deg) translateY(0.01px) translateZ(0.01px);
+  transition: transform 380ms cubic-bezier(0.32, 0.72, 0.3, 1);
+  will-change: transform;
+  pointer-events: none;
+}
+
+.craft-face {
+  display: grid;
+  width: 100%;
+  align-items: center;
+  gap: clamp(1.25rem, 3vw, 2.75rem);
+  padding: clamp(1.4rem, 2.3vw, 2.2rem) clamp(1.6rem, 2.6vw, 2.5rem);
+  background: #0d193f;
+  color: #f7f4f0;
+}
+
+.craft-face-hover {
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  transform-origin: center top;
+  transform: rotateX(90.01deg) translateY(-100%) translateZ(0.01px);
+  background: #f7f4f0;
+  color: #081125;
+}
+
+.craft-title {
+  position: relative;
+  z-index: 2;
+  font-size: clamp(1.6rem, 2.6vw, 2.15rem);
+  font-weight: 700;
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.craft-list {
+  display: grid;
+  gap: 0.42rem;
+  max-width: 44ch;
+  font-size: clamp(0.9rem, 1.1vw, 1rem);
+  line-height: 1.5;
+  opacity: 0.72;
+}
+
+.craft-list > li {
+  position: relative;
+  padding-left: 1rem;
+}
+
+.craft-list > li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+/* The front face keeps the list for sizing only, so both cube faces match. */
+.craft-face-main .craft-list {
+  visibility: hidden;
+}
+
+/* Balanced against both halves: much past 48% the bullets wrap to three
+   lines, much under it the titles break mid-phrase. */
+@media (min-width: 768px) {
+  .craft-face {
+    grid-template-columns: 48% auto;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (min-width: 768px) {
+  .craft-row:hover .craft-row-inner {
+    transform: rotateX(-90.01deg) translateY(100%) translateZ(0.01px);
+  }
+}
+
+/* Without hover there is nothing to flip into, so the front face just shows
+   everything instead. */
+@media (hover: none), (pointer: coarse), (max-width: 767px) {
+  .craft-row-inner {
+    transform: none;
+    transition: none;
+  }
+
+  .craft-face-hover {
+    display: none;
+  }
+
+  .craft-face-main .craft-list {
+    visibility: visible;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Roll button — every character swaps on its own delay, left to right
+--------------------------------------------------------------------------- */
+.roll-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 9999px;
+  padding: 1.2rem 2.5rem;
+  font-size: clamp(1rem, 1.25vw, 1.15rem);
+  color: #f7f4f0;
+  transition:
+    border-color 300ms ease,
+    background-color 300ms ease,
+    box-shadow 300ms ease;
+}
+
+.roll-button--outline:hover {
+  border-color: #ed1a41;
+  background-color: rgba(237, 26, 65, 0.12);
+}
+
+.roll-button--solid {
+  border-color: transparent;
+  background-color: #ed1a41;
+  color: #fff;
+  box-shadow:
+    0 8px 28px rgba(237, 26, 65, 0.24),
+    0 0 0 1px rgba(237, 26, 65, 0.12);
+}
+
+.roll-button--solid:hover {
+  background-color: #c91436;
+  box-shadow:
+    0 12px 36px rgba(237, 26, 65, 0.34),
+    0 0 22px rgba(237, 26, 65, 0.14);
+}
+
+/* For the CTA that sits on the brand red itself, where a red fill would
+   disappear into the background. */
+.roll-button--light {
+  border-color: transparent;
+  background-color: #f7f4f0;
+  color: #081125;
+}
+
+.roll-button--light:hover {
+  background-color: #ffffff;
+}
+
+.roll-button--dark {
+  border-color: rgba(8, 17, 37, 0.28);
+  color: #081125;
+}
+
+.roll-button--dark:hover {
+  border-color: #ed1a41;
+  color: #ed1a41;
+  background-color: rgba(237, 26, 65, 0.07);
+}
+
+.roll {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  line-height: 1.35;
+}
+
+.roll-line {
+  display: flex;
+  white-space: pre;
+}
+
+.roll-line-next {
+  position: absolute;
+  inset: 0;
+}
+
+.roll-line > span {
+  display: inline-block;
+  transition: transform 460ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--i) * 16ms);
+}
+
+.roll-line-next > span {
+  transform: translateY(105%);
+}
+
+.roll-button:hover .roll-line > span {
+  transform: translateY(-105%);
+}
+
+.roll-button:hover .roll-line-next > span {
+  transform: translateY(0);
+}
+
+.roll-button-arrow {
+  display: grid;
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: 0 0 auto;
+  place-items: center;
+  transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.roll-button-arrow svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.roll-button:hover .roll-button-arrow--down {
+  transform: translate3d(0, 3px, 0);
+}
+
+.roll-button:hover .roll-button-arrow--out {
+  transform: translate3d(3px, -3px, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roll-line > span,
+  .roll-button-arrow {
+    transition: none;
+  }
+
+  .site-nav,
+  .site-nav-sheet {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Client logo plates: one plate size for the whole set, so only the mark
+   inside changes weight. `--client-logo-*` is the base box each logo is
+   scaled against (see the `scale` field in CompaniesSection). */
+.client-logo-card {
+  --client-logo-h: 18px;
+  --client-logo-w: 4rem;
+  width: 6rem;
+  height: 2.7rem;
+}
+
+@media (min-width: 640px) {
+  .client-logo-card {
+    --client-logo-h: 28px;
+    --client-logo-w: 7rem;
+    width: 9.75rem;
+    height: 3.6rem;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Ambient motion
+   Slow, compositor-only loops that keep otherwise static areas alive.
+   Everything here is transform/opacity so it never triggers layout, and each
+   class reads `--amb-delay` so neighbouring elements can be desynchronised.
+   The reduced-motion block at the bottom switches the whole set off.
+--------------------------------------------------------------------------- */
+
+/* Hero glow: two slow, counter-moving layers create a gentle tidal motion.
+   The oversized bounds keep the transparent edges outside the viewport. */
+.hero-glow {
+  position: absolute;
+  inset: -14%;
+  transform-origin: 50% 46%;
+  backface-visibility: hidden;
+  will-change: transform, scale, opacity;
+}
+
+.hero-glow-primary {
+  animation:
+    hero-glow-tide 15s cubic-bezier(0.45, 0, 0.55, 1) infinite,
+    hero-glow-pulse 5.2s ease-in-out infinite;
+}
+
+.hero-glow-secondary {
+  animation: hero-glow-counter-tide 22s cubic-bezier(0.45, 0, 0.55, 1) -7s
+    infinite;
+}
+
+@keyframes hero-glow-tide {
+  0%,
+  100% {
+    transform: translate3d(-6vw, 4vh, 0);
+  }
+  28% {
+    transform: translate3d(5vw, -5vh, 0);
+  }
+  55% {
+    transform: translate3d(7vw, 1.5vh, 0);
+  }
+  78% {
+    transform: translate3d(-4vw, -4vh, 0);
+  }
+}
+
+@keyframes hero-glow-pulse {
+  0%,
+  100% {
+    scale: 0.94;
+    opacity: 0.76;
+  }
+  50% {
+    scale: 1.14;
+    opacity: 1;
+  }
+}
+
+@keyframes hero-glow-counter-tide {
+  0%,
+  100% {
+    transform: translate3d(6vw, -3vh, 0) scale(1.03);
+    opacity: 0.58;
+  }
+  35% {
+    transform: translate3d(-7vw, 4vh, 0) scale(1.085);
+    opacity: 0.9;
+  }
+  68% {
+    transform: translate3d(2vw, -6vh, 0) scale(1.045);
+    opacity: 0.72;
+  }
+}
+
+.amb-breathe {
+  animation: amb-breathe var(--amb-duration, 16s) ease-in-out infinite;
+  animation-delay: var(--amb-delay, 0s);
+  will-change: transform, opacity;
+}
+
+@keyframes amb-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.86;
+  }
+  50% {
+    transform: scale(1.055);
+    opacity: 1;
+  }
+}
+
+/* Opacity-only breathing, for full-bleed washes where scaling the gradient
+   would read as the whole background swelling. */
+.amb-glow {
+  animation: amb-glow var(--amb-duration, 15s) ease-in-out infinite;
+  animation-delay: var(--amb-delay, 0s);
+  will-change: opacity;
+}
+
+@keyframes amb-glow {
+  0%,
+  100% {
+    opacity: var(--amb-low, 0.72);
+  }
+  50% {
+    opacity: var(--amb-high, 1);
+  }
+}
+
+.amb-drift {
+  animation: amb-drift var(--amb-duration, 22s) ease-in-out infinite;
+  animation-delay: var(--amb-delay, 0s);
+  will-change: transform;
+}
+
+@keyframes amb-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(2.2%, -1.4%, 0) scale(1.04);
+  }
+  66% {
+    transform: translate3d(-1.8%, 1.6%, 0) scale(1.02);
+  }
+}
+
+.amb-spin-slow {
+  animation: amb-spin-slow var(--amb-duration, 90s) linear infinite;
+  will-change: transform;
+}
+
+@keyframes amb-spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.amb-float {
+  animation: amb-float var(--amb-duration, 6s) ease-in-out infinite;
+  animation-delay: var(--amb-delay, 0s);
+  will-change: transform;
+}
+
+@keyframes amb-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, calc(var(--amb-rise, 5px) * -1), 0);
+  }
+}
+
+.amb-pulse-soft {
+  animation: amb-pulse-soft var(--amb-duration, 7s) ease-in-out infinite;
+  animation-delay: var(--amb-delay, 0s);
+  will-change: opacity;
+}
+
+@keyframes amb-pulse-soft {
+  0%,
+  100% {
+    opacity: var(--amb-low, 0.55);
+  }
+  50% {
+    opacity: var(--amb-high, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-glow-primary,
+  .hero-glow-secondary,
+  .amb-breathe,
+  .amb-glow,
+  .amb-drift,
+  .amb-spin-slow,
+  .amb-float,
+  .amb-pulse-soft {
+    animation: none !important;
+  }
 }

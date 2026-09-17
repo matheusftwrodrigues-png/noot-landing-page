@@ -13,7 +13,6 @@ export default function ScrollCompanion() {
   const spinRef = useRef<HTMLDivElement>(null);
   const v1Ref = useRef<HTMLDivElement>(null);
   const v2Ref = useRef<HTMLDivElement>(null);
-  const hintRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -21,7 +20,6 @@ export default function ScrollCompanion() {
     const spin = spinRef.current;
     const v1 = v1Ref.current;
     const v2 = v2Ref.current;
-    const hint = hintRef.current;
     if (!root || !bobEl || !spin || !v1 || !v2) return;
 
     const ctx = gsap.context(() => {
@@ -120,18 +118,6 @@ export default function ScrollCompanion() {
           0.35,
         );
 
-      if (hint) {
-        gsap.to(hint, {
-          opacity: 0,
-          y: 8,
-          ease: "power1.out",
-          scrollTrigger: {
-            start: "top+=60 top",
-            end: "top+=260 top",
-            scrub: true,
-          },
-        });
-      }
     }, root);
 
     const refresh = () => ScrollTrigger.refresh();
@@ -147,11 +133,11 @@ export default function ScrollCompanion() {
   return (
     <div
       ref={rootRef}
-      className="pointer-events-none fixed right-4 bottom-6 z-[45] sm:right-6 sm:bottom-8 md:right-8"
+      className="pointer-events-none fixed right-3 bottom-24 z-[45] sm:right-6 sm:bottom-8 md:right-8"
       style={{ opacity: 0 }}
       aria-hidden
     >
-      <div ref={bobRef} className="flex flex-col items-center gap-2">
+      <div ref={bobRef} className="flex flex-col items-center">
         <div
           ref={spinRef}
           className="relative h-14 w-[3.15rem] will-change-transform sm:h-16 sm:w-14 md:h-[4.5rem] md:w-[4rem]"
@@ -189,12 +175,6 @@ export default function ScrollCompanion() {
           </div>
         </div>
 
-        <span
-          ref={hintRef}
-          className="font-[family-name:var(--font-geist-mono)] text-[0.6rem] tracking-[0.22em] text-[#1F3663]/70 uppercase"
-        >
-          Role ↓
-        </span>
       </div>
     </div>
   );

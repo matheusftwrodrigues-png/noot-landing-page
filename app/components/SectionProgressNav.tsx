@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 
 const SECTIONS = [
   { id: "inicio", label: "Logo" },
-  { id: "oficio", label: "Ofício" },
+  { id: "oficio", label: "Serviços" },
   { id: "proposta", label: "Proposta" },
   { id: "empresas", label: "Clientes" },
-  { id: "trabalhos", label: "Galeria" },
+  { id: "trabalhos", label: "Cases" },
   { id: "fala-com-a-gente", label: "Fala" },
 ] as const;
 
@@ -134,7 +134,7 @@ export default function SectionProgressNav() {
       <div className="group/nav pointer-events-auto flex h-full w-12 flex-col items-center py-[9vh] opacity-100 transition-opacity duration-300 hover:opacity-100">
         <div className="relative flex h-full w-full flex-col items-center">
           <div
-            className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-white mix-blend-difference"
+            className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-whiteg mix-blend-difference"
             aria-hidden
           />
           <div
